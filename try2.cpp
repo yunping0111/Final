@@ -26,7 +26,7 @@ struct Point {
 };
 std::array<array<int,8>, 8> weight{
     {
-        /*
+
     {100000, -200, 100, 50, 50, 100, -200, 100000},
     {-200, -5000,  10,  3,  3,  10, -5000, -200},
     { 100,  -10, 150, 10, 10, 150,  -10,  100},
@@ -34,17 +34,17 @@ std::array<array<int,8>, 8> weight{
     {  50,    3,  10,  3,  3,  10,    3,   50},
     { 100,  -10, 150, 10, 10, 150,  -10,  100},
     {-200, -5000,  10,  3,  3,  10, -5000, -200},
-    {100000, -200, 100, 15, 15, 100, -200, 100000},*/
+    {100000, -200, 100, 15, 15, 100, -200, 100000},
 
-
-    { 500, -100, 20, 15, 15, 20, -100,  500},
-            {-100, -200, 10, 3,  3,  10, -200, -100},
-            { 20,   10,  15, 10, 10, 15,  10,   20},
-            { 15,   3,   10, 3,  3,  10,  3,    15},
-            { 15,   3,   10, 3,  3,  10,  3,    15},
-            { 20,   10,  15, 10, 10, 15,  10,   20},
-            {-100, -200, 10, 3,  3,  10, -200, -100},
-            { 500, -100, 20, 15, 15, 20, -100,  500},
+/*
+    {1, 2, 3, 4, 5, 6, 7, 8 },
+    {11, 12, 13, 14, 15, 16, 17, 18 },
+    {21, 22, 23, 24, 25, 26, 27, 28 },
+    {31, 32, 33, 34, 35, 36, 37, 38 },
+    {41, 42, 43, 44, 45, 46, 47, 48 },
+    {51, 52, 53, 54, 55, 56, 57, 58 },
+    {61, 62, 63, 64, 65, 66, 67, 68 },
+    {71, 72, 73, 74, 75, 76, 77, 78 },*/
     }
 };
 
@@ -277,26 +277,39 @@ int minimax(HYPOthelloBoard node, int depth, int alpha, int beta, int maximizing
 }
 
 void write_valid_spot(std::ofstream& fout) {
-    //int n_valid_spots = next_valid_spots.size();
+    int n_valid_spots = next_valid_spots.size();
     srand(time(NULL));
     // Choose random spot. (Not random uniform here)
 
     HYPOthelloBoard ob;
     ob.cur_player = player;
     ob.next_valid_spots = next_valid_spots;
+    int vv = INT_MIN;
+    Point pp;
+    for (int i = 0; i<n_valid_spots; i++){
+        if (weight[next_valid_spots[i].x][next_valid_spots[i].y] > vv)
+        {
+            vv = weight[next_valid_spots[i].x][next_valid_spots[i].y];
+            pp = next_valid_spots[i];
+        }
+        cout << pp.x << " " << pp.y << std::endl;
+        fout << pp.x << " " << pp.y << std::endl;
+        fout.flush();
+    }
 
-    int v = minimax(ob, 1, INT_MIN, INT_MAX, ob.cur_player);
+/*
+    int v = minimax(ob, 4, INT_MIN, INT_MAX, ob.cur_player);
     Point choose = vmap[v];
-    vmap.clear();
+    //vmap.clear();
     fout << choose.x << " " << choose.y << std::endl;
     fout.flush();
 
     v = minimax(ob, MaxD, INT_MIN, INT_MAX, ob.cur_player);
     choose = vmap[v];
-    vmap.clear();
+    //vmap.clear();
     fout << choose.x << " " << choose.y << std::endl;
     fout.flush();
-
+*/
     //cout<< choose.x << " " << choose.y << std::endl;
     /*for (int i = 1; i<=MaxD; i+=2){
 
@@ -317,8 +330,11 @@ int main(int, char** argv) {
     std::ofstream fout(argv[2]);
     read_board(fin);
     read_valid_spots(fin);
+    cout<<"HERERERERERERER"<<endl;
+    //fout<<"ASASASASASASASASASASASASAS"<<endl;
     write_valid_spot(fout);
     fin.close();
     fout.close();
     return 0;
 }
+//.\main.exe .\try2.exe ..\baseline\windows\baseline2.exe
