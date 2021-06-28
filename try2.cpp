@@ -36,7 +36,7 @@ std::array<array<int,8>, 8> weight{
     {-200, -5000,  10,  3,  3,  10, -5000, -200},
     {100000, -200, 100, 15, 15, 100, -200, 100000},
 
-/*
+ /*
     {1, 2, 3, 4, 5, 6, 7, 8 },
     {11, 12, 13, 14, 15, 16, 17, 18 },
     {21, 22, 23, 24, 25, 26, 27, 28 },
@@ -76,11 +76,11 @@ public:
     int winner;
     int H;
 
-    /*HYPOthelloBoard(std::array<std::array<int, SIZE>, SIZE> o): cur_player(player), H(0), done(false) {
+    HYPOthelloBoard(std::array<std::array<int, SIZE>, SIZE> b): cur_player(player),done(false), winner(-1), H(0) {
         for(int i = 0; i < SIZE; i++)
             for(int j = 0; j < SIZE; j++)
-                board[i][j] = o[i][j];
-    }*/
+                board[i][j] = b[i][j];
+    }
 
 private:
     int get_next_player(int player) const {
@@ -281,10 +281,21 @@ void write_valid_spot(std::ofstream& fout) {
     srand(time(NULL));
     // Choose random spot. (Not random uniform here)
 
-    HYPOthelloBoard ob;
+    HYPOthelloBoard ob(board);
     ob.cur_player = player;
     ob.next_valid_spots = next_valid_spots;
-    int vv = INT_MIN;
+
+    int v = INT_MIN;
+    Point p;
+    for (int i = 0; i< n_valid_spots; i++){
+        ob.board[next_valid_spots[i].x][next_valid_spots[i].y] = player;
+        if (statevalue(ob)>v) v = statevalue(ob), p=next_valid_spots[i];
+        ob.board[next_valid_spots[i].x][next_valid_spots[i].y] = 0;
+        fout << p.x << " " << p.y << std::endl;
+        fout.flush();
+    }
+
+/*    int vv = INT_MIN;
     Point pp;
     for (int i = 0; i<n_valid_spots; i++){
         if (weight[next_valid_spots[i].x][next_valid_spots[i].y] > vv)
@@ -297,8 +308,8 @@ void write_valid_spot(std::ofstream& fout) {
         fout.flush();
     }
 
-/*
-    int v = minimax(ob, 4, INT_MIN, INT_MAX, ob.cur_player);
+
+    int v = minimax(ob, 1, INT_MIN, INT_MAX, ob.cur_player);
     Point choose = vmap[v];
     //vmap.clear();
     fout << choose.x << " " << choose.y << std::endl;
@@ -330,8 +341,6 @@ int main(int, char** argv) {
     std::ofstream fout(argv[2]);
     read_board(fin);
     read_valid_spots(fin);
-    cout<<"HERERERERERERER"<<endl;
-    //fout<<"ASASASASASASASASASASASASAS"<<endl;
     write_valid_spot(fout);
     fin.close();
     fout.close();
