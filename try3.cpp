@@ -1,4 +1,4 @@
-
+#include <climits>
 #include <iostream>
 #include <fstream>
 #include <array>
@@ -226,10 +226,6 @@ public:
     }
 };
 
-bool on_board(Point p) {
-    return 0 <= p.x && p.x < SIZE && 0 <= p.y && p.y < SIZE;
-}
-
 int statevalue(HYPOthelloBoard cur){
     int v = 0;
     for (int i = 0; i<8; i++){
@@ -272,6 +268,7 @@ int minimax(HYPOthelloBoard node, int depth, int alpha, int beta){
             HYPOthelloBoard nextnode = node;
             nextnode.update(child);
 
+            mfout<<"player\n";
             mfout << "+---------------+\n";
             for (int i = 0; i < SIZE; i++) {
                 mfout << "|";
@@ -299,13 +296,25 @@ int minimax(HYPOthelloBoard node, int depth, int alpha, int beta){
         for (auto child: node.next_valid_spots){
             HYPOthelloBoard nextnode = node;
             nextnode.update(child);
+            mfout << "oppo\n";
+            mfout << "+---------------+\n";
+            for (int i = 0; i < SIZE; i++) {
+                mfout << "|";
+                for (int j = 0; j < SIZE-1; j++) {
+                    mfout << nextnode.board[i][j]<< " ";
+                }
+                mfout << nextnode.board[i][SIZE-1]<< "|\n";
+            }
+            mfout << "+---------------+\n";
+
             int v = minimax(nextnode , depth-1, alpha, beta);
+            mfout<<child.x<<" " << child.y<<":"<<v<<endl;
             minv = min(minv, v);
             beta = min(beta, v);
             if (depth==MaxD) vmap[v] = child; //vmap.insert(pair<int, Point> (v, child))
             if (alpha>=beta) break;
         }
-        mfout<<"minv:"<<minv<<endl;
+        mfout<<"MINV:"<<minv<<endl;
         node.H = minv;
         return minv;
     }
@@ -330,20 +339,32 @@ void write_valid_spot(std::ofstream& fout) {
         fout << p.x << " " << p.y << std::endl;
         fout.flush();
     }*/
+    int v ;
+    Point choose;
 
+    /*
     MaxD = 1;
-    int v = minimax(ob, 1, INT_MIN, INT_MAX);
-    Point choose = vmap[v];
+    v = minimax(ob, 1, INT_MIN, INT_MAX);
+    choose = vmap[v];
     vmap.clear();
     mfout<<"choose: "<< choose.x << " " << choose.y <<endl;
     fout << choose.x << " " << choose.y << std::endl;
-    fout.flush();
+    fout.flush();*/
 
     MaxD = 2;
     v = minimax(ob, 2, INT_MIN, INT_MAX);
     choose = vmap[v];
     vmap.clear();
-    mfout<<"3CHOOSE: "<< choose.x << " " << choose.y <<endl;
+    mfout<<"2CHOOSE: "<< choose.x << " " << choose.y <<endl;
+    fout << choose.x << " " << choose.y << std::endl;
+    fout.flush();
+
+
+    MaxD = 5;
+    v = minimax(ob, 5, INT_MIN, INT_MAX);
+    choose = vmap[v];
+    vmap.clear();
+    mfout<<"5CHOOSE: "<< choose.x << " " << choose.y <<endl;
     fout << choose.x << " " << choose.y << std::endl;
     fout.flush();
 
