@@ -28,14 +28,14 @@ struct Point {
 std::array<array<int,8>, 8> weight{
     {
 
-    {10000, -200, 100, 50, 50, 100, -200, 10000},
-    {-200, -1000,  10,  3,  3,  10, -1000, -200},
-    { 100,  -10, 150, 10, 10, 150,  -10,  100},
-    {  50,    3,  10,  3,  3,  10,    3,   50},
-    {  50,    3,  10,  3,  3,  10,    3,   50},
-    { 100,  -10, 150, 10, 10, 150,  -10,  100},
-    {-200, -1000,  10,  3,  3,  10, -1000, -200},
-    {10000, -200, 100, 15, 15, 100, -200, 10000},
+    {160000,  -200, 100, 50, 50, 100,  -200,160000},
+    {-200 , -1000,  10,  3,  3,  10, -1000, -200},
+    { 100 ,   -10, 300, 10, 10, 300,   -10,  100},
+    {  50 ,     3,  10,  3,  3,  10,     3,   50},
+    {  50 ,     3,  10,  3,  3,  10,     3,   50},
+    { 100 ,   -10, 300, 10, 10, 300,   -10,  100},
+    {-200 , -1000,  10,  3,  3,  10, -1000, -200},
+    {160000,  -200, 100, 15, 15, 100,  -200,160000},
 
  /*
     {1, 2, 3, 4, 5, 6, 7, 8 },
@@ -48,6 +48,25 @@ std::array<array<int,8>, 8> weight{
     {71, 72, 73, 74, 75, 76, 77, 78 },*/
     }
 };
+
+std::array<Point, 4> corner{
+    {
+        Point(0,0), Point(0,7), Point(7,0), Point(7,7)
+    }
+};
+
+std::array<Point, 8> beside_c{
+    { // 左右, 上下
+        Point(0,1), Point(1, 0), Point(0,6), Point(1,7), Point(7,1), Point(6,0), Point(7,6), Point(6,7)
+    }
+};
+
+std::array<Point, 4> x_c{
+    {
+        Point(1,1), Point(1, 6), Point(6, 1), Point(6,6)
+    }
+};
+
 
 int player;
 const int SIZE = 8;
@@ -224,6 +243,10 @@ public:
         }
 
     }
+
+    int empty_disc(){
+        return disc_count[EMPTY];
+    }
 };
 
 int statevalue(HYPOthelloBoard cur){
@@ -233,6 +256,50 @@ int statevalue(HYPOthelloBoard cur){
             if (cur.board[i][j]==player) v+=weight[i][j];
             else if (cur.board[i][j]==(3-player)) v-=weight[i][j];
         }
+    }
+    return v;
+}
+
+int edge(HYPOthelloBoard cur){
+    int v = 0;
+    for (int i = 0; i<4; i++){
+        Point c = corner[i];
+        int mul = (board[c.x][c.y]==player)?1:-1;
+        if (cur.board[c.x][c.y] == player){
+            if (board[beside_c[2*i].x][beside_c[2*i].y]== 0 ) weight[beside_c[2*i].x][beside_c[2*i].y]+=1500;
+            if (board[beside_c[2*i+1].x][beside_c[2*i+1].y]== 0) weight[beside_c[2*i+1].x][beside_c[2*i+1].y]+=1500;
+        }
+
+        if (c.x==0 || c.x==SIZE-1 ){
+            for (int i = 1; i<SIZE - 1; i++){
+                if (board[c.x][c.y]==board[c.x][i]) v+= mul * 500;
+            }
+        }
+
+        if (c.y==0 || c.y==SIZE-1){
+            for (int i= 1; i<SIZE-1; i++){
+                if (board[c.x][c.y]==board[i][c.y]) v+=mul*500;
+            }
+        }
+
+    }
+    return v;
+}
+
+int total_value(HYPOthelloBoard cur){
+    int v = 0;
+
+    if (cur.empty_disc()<15){
+        v = v + statevalue(cur) + edge(cur);
+    }
+    else if (cur.empty_disc()<30){
+        v = v + statevalue(cur)*3+ edge(cur)*3;
+    }
+    else if (cur.empty_disc()<50){
+        v = v + statevalue(cur)* 7+ edge(cur)*4;
+    }
+    else {
+        v = v +statevalue(cur)*10+ edge(cur)*5;
     }
     return v;
 }
@@ -259,7 +326,7 @@ void read_valid_spots(std::ifstream& fin) {
 std::ofstream mfout("out.txt", std::ios_base::app);
 int minimax(HYPOthelloBoard node, int depth, int alpha, int beta){
     if (depth==0 || node.next_valid_spots.size()==0){
-        return statevalue(node);
+        return total_value(node);
     }
     if (node.cur_player==player){
         mfout<<"New Node:"<<endl;
