@@ -28,14 +28,14 @@ struct Point {
 std::array<array<int,8>, 8> weight{
     {
 
-    {10000,  -200, 100, 50, 50, 100,  -200,10000},
+    {30000,  -200, 100, 50, 50, 100,  -200,30000},
     {-200 , -3000, -10,  3,  3, -10, -3000, -200},
     { 100 ,   -10, 300, 10, 10, 300,   -10,  100},
     {  50 ,     3,  10,  3,  3,  10,     3,   50},
     {  50 ,     3,  10,  3,  3,  10,     3,   50},
     { 100 ,   -10, 300, 10, 10, 300,   -10,  100},
     {-200 , -3000, -10,  3,  3, -10, -3000, -200},
-    {10000,  -200, 100, 50, 50, 100,  -200,10000},
+    {30000,  -200, 100, 50, 50, 100,  -200,30000},
 
  /*
     {1, 2, 3, 4, 5, 6, 7, 8 },
@@ -318,9 +318,11 @@ int corner_stability(HYPOthelloBoard cur){
     for (int i = 0; i<4; i++){
         Point c = corner[i];
         if (cur.board[c.x][c.y]!=0){ // if corner not empty, weight is positive
-            weight[beside_c[2*i].x][beside_c[2*i].y] = 300;
-            weight[beside_c[2*i+1].x][beside_c[2*i+1].y] = 300;
-            weight[x_c[i].x][x_c[i].y] = 400;
+            if (board[c.x][c.y]==player){
+                weight[beside_c[2*i].x][beside_c[2*i].y] = 300;
+                weight[beside_c[2*i+1].x][beside_c[2*i+1].y] = 300;
+                weight[x_c[i].x][x_c[i].y] = 400;
+            }
             continue;
         }
         if (cur.board[c.x][c.y]==player) v+=2, cnt++;
