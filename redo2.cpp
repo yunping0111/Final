@@ -28,14 +28,14 @@ struct Point {
 std::array<array<int,8>, 8> weight{
     {
 
-    {30000,  -200, 100, 50, 50, 100,  -200,30000},
+    {10000,  -200, 100, 50, 50, 100,  -200,10000},
     {-200 , -3000, -10,  3,  3, -10, -3000, -200},
     { 100 ,   -10, 300, 10, 10, 300,   -10,  100},
     {  50 ,     3,  10,  3,  3,  10,     3,   50},
     {  50 ,     3,  10,  3,  3,  10,     3,   50},
     { 100 ,   -10, 300, 10, 10, 300,   -10,  100},
     {-200 , -3000, -10,  3,  3, -10, -3000, -200},
-    {30000,  -200, 100, 50, 50, 100,  -200,30000},
+    {10000,  -200, 100, 50, 50, 100,  -200,10000},
 
  /*
     {1, 2, 3, 4, 5, 6, 7, 8 },
@@ -271,30 +271,15 @@ int statevalue(HYPOthelloBoard cur){
 
 int edge(HYPOthelloBoard cur){
     int v = 0;
-
-
     for (int i = 0; i<4; i++){
         Point c = corner[i];
         int mul = (cur.board[c.x][c.y]==player)?1:-1;
-        mul*=1;
-        /*
-         if (cur.board[c.x][c.y] == player){
-            if (board[beside_c[2*i].x][beside_c[2*i].y]== 0 ) weight[beside_c[2*i].x][beside_c[2*i].y]+=1500;
-            if (board[beside_c[2*i+1].x][beside_c[2*i+1].y]== 0) weight[beside_c[2*i+1].x][beside_c[2*i+1].y]+=1500;
+        for (int j = 1; j<8; j++){
+            if (cur.board[c.x][j]==cur.board[c.x][c.y]) v+=mul*200;
         }
-
-        if (c.x==0 || c.x==SIZE-1 ){
-            for (int i = 1; i<SIZE - 1; i++){
-                if (board[c.x][c.y]==board[c.x][i]) v+= mul * 500;
-            }
+        for (int j = 1; j<8; j++){
+            if (cur.board[j][c.y]==cur.board[c.x][c.y]) v+=mul*200;
         }
-
-        if (c.y==0 || c.y==SIZE-1){
-            for (int i= 1; i<SIZE-1; i++){
-                if (board[c.x][c.y]==board[i][c.y]) v+=mul*500;
-            }
-        }
-*/
     }
 
     return v;
@@ -308,7 +293,7 @@ int disc_c(HYPOthelloBoard cur){
 
 int mobility(HYPOthelloBoard cur){
     int mul = (cur.cur_player==player)?1:-1;
-    return (mul * 20* cur.next_valid_spots.size());
+    return (mul * 100* cur.next_valid_spots.size());
 }
 
 int corner_stability(HYPOthelloBoard cur){
@@ -337,16 +322,16 @@ int total_value(HYPOthelloBoard cur){
     int v = 0;
 
     if (cur.empty_disc()<15){
-        v = v + statevalue(cur) + edge(cur) + disc_c(cur)*5 + mobility(cur)*5 + corner_stability(cur)*10;
+        v = v + statevalue(cur) + edge(cur) + disc_c(cur) + mobility(cur)*1 + corner_stability(cur)*10;
     }
     else if (cur.empty_disc()<30){
         v = v + statevalue(cur)*3+ edge(cur)*3 + disc_c(cur)*2 + mobility(cur)*2 + corner_stability(cur)*10;
     }
     else if (cur.empty_disc()<50){
-        v = v + statevalue(cur)* 7+ edge(cur)*4+ disc_c(cur)+ mobility(cur) + corner_stability(cur)*10;
+        v = v + statevalue(cur)* 7+ edge(cur)*4+ disc_c(cur)*3+ mobility(cur)*5 + corner_stability(cur)*10;
     }
     else{
-        v = v +statevalue(cur)*20+ edge(cur)*5 + corner_stability(cur)*100;
+        v = v +statevalue(cur)*20+ edge(cur)*5 + disc_c(cur)*5+ mobility(cur)*10 + corner_stability(cur)*100;
     }
     return v;
 }
@@ -481,7 +466,15 @@ void write_valid_spot(std::ofstream& fout) {
     mfout<<"5CHOOSE: "<< choose.x << " " << choose.y <<endl;
     fout << choose.x << " " << choose.y << std::endl;
     fout.flush();
-
+/*
+    MaxD = 7;
+    v = minimax(ob, 7, INT_MIN, INT_MAX);
+    choose = vmap[v];
+    vmap.clear();
+    mfout<<"5CHOOSE: "<< choose.x << " " << choose.y <<endl;
+    fout << choose.x << " " << choose.y << std::endl;
+    fout.flush();
+*/
     // Remember to flush the output to ensure the last action is written to file.
     //fout << p.x << " " << p.y << std::endl;
     //fout.flush();
