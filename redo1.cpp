@@ -29,12 +29,12 @@ std::array<array<int,8>, 8> weight{
     {
 
     {10000,  -200, 100, 50, 50, 100,  -200,10000},
-    {-200 , -1000,  10,  3,  3,  10, -1000, -200},
+    {-200 , -1000, -10,  3,  3, -10, -1000, -200},
     { 100 ,   -10, 300, 10, 10, 300,   -10,  100},
     {  50 ,     3,  10,  3,  3,  10,     3,   50},
     {  50 ,     3,  10,  3,  3,  10,     3,   50},
     { 100 ,   -10, 300, 10, 10, 300,   -10,  100},
-    {-200 , -1000,  10,  3,  3,  10, -1000, -200},
+    {-200 , -1000, -10,  3,  3, -10, -1000, -200},
     {10000,  -200, 100, 15, 15, 100,  -200,10000},
 
  /*
@@ -247,6 +247,14 @@ public:
     int empty_disc(){
         return disc_count[EMPTY];
     }
+
+    int player_disc(){
+        return disc_count[player];
+    }
+
+    int oppo_disc(){
+        return disc_count[3-player];
+    }
 };
 
 int statevalue(HYPOthelloBoard cur){
@@ -269,7 +277,8 @@ int edge(HYPOthelloBoard cur){
         Point c = corner[i];
         int mul = (cur.board[c.x][c.y]==player)?1:-1;
         mul*=1;
-        /* if (cur.board[c.x][c.y] == player){
+        /*
+         if (cur.board[c.x][c.y] == player){
             if (board[beside_c[2*i].x][beside_c[2*i].y]== 0 ) weight[beside_c[2*i].x][beside_c[2*i].y]+=1500;
             if (board[beside_c[2*i+1].x][beside_c[2*i+1].y]== 0) weight[beside_c[2*i+1].x][beside_c[2*i+1].y]+=1500;
         }
@@ -291,20 +300,44 @@ int edge(HYPOthelloBoard cur){
     return v;
 }
 
+int disc_c(HYPOthelloBoard cur){
+    int mul = (cur.cur_player==player)?1:-1;
+
+    return mul * 200* (cur.player_disc() - cur.oppo_disc()) / (cur.player_disc() + cur.oppo_disc());
+}
+
+int mobility(HYPOthelloBoard cur){
+    int mul = (cur.cur_player==player)?1:-1;
+    return (mul * 20* cur.next_valid_spots.size());
+}
+
+int corner_stability(HYPOthelloBoard cur){
+    int mul = (cur.cur_player==player)?1:-1;
+    int v = 0;
+    int cnt = 0;
+    for (int i = 0; i<4; i++){
+        Point c = corner[i];
+        if (cur.board[c.x][c.y]==player) v++, cnt++;
+    }
+    if (cnt==4) v+=20;
+    return mul * 1000 * v;
+
+}
+
 int total_value(HYPOthelloBoard cur){
     int v = 0;
 
     if (cur.empty_disc()<15){
-        v = v + statevalue(cur) + edge(cur);
+        v = v + statevalue(cur) + edge(cur) + disc_c(cur)*5 + mobility(cur)*5 + corner_stability(cur)*10;
     }
     else if (cur.empty_disc()<30){
-        v = v + statevalue(cur)*3+ edge(cur)*3;
+        v = v + statevalue(cur)*3+ edge(cur)*3 + disc_c(cur)*2 + mobility(cur)*2 + corner_stability(cur)*10;
     }
     else if (cur.empty_disc()<50){
-        v = v + statevalue(cur)* 7+ edge(cur)*4;
+        v = v + statevalue(cur)* 7+ edge(cur)*4+ disc_c(cur)+ mobility(cur) + corner_stability(cur)*10;
     }
     else{
-        v = v +statevalue(cur)*20+ edge(cur)*5;
+        v = v +statevalue(cur)*20+ edge(cur)*5 + corner_stability(cur)*100;
     }
     return v;
 }
